@@ -62,8 +62,12 @@ score_font = pygame.font.SysFont("Courier Normal", 35)
 current_map = "menu"
 screen_scroll = 0
 
+# Contador
+cronometro = 59
+contador = 0
+
+
 # Musica
-volumen = 0.05
 lista_canciones = generar_lista_canciones()
 cambiar_canciones(current_map, lista_canciones)
 
@@ -94,6 +98,7 @@ while running:
             enemy_group = generar_nivel(screen,world, form_menu.nivel, scale_factor, SCREEN_WIDTH, SCREEN_HEIGHT)
             jugador = Personaje(screen, "jugador", sprite_x, sprite_y, 5,3, scale_factor, world)
             jugador.nombre = form_menu.nombre
+            cronometro = 59
             start_game = True
         
         if form_menu.quit == True:
@@ -126,6 +131,7 @@ while running:
         # Dibujar nivel
         world.draw_bg(screen, jugador.camera_x)
         world.draw(screen, jugador.screen_scroll)
+        cronometro_texto = score_font.render(f"00:{cronometro}", False, (0, 0, 0), "White")
 
 
         # Enemigos en grupo
@@ -140,6 +146,7 @@ while running:
                 enemigo.hp -= 1
             if enemigo.hp == 0:
                 enemigo.alive = False
+                jugador.lista_sonidos[6].play()
                 enemigo.kill()
                 jugador.score += score_enem_boss
                 jugador.level_cleared = True
@@ -159,6 +166,7 @@ while running:
                 enemigo.hp -= 1
             if enemigo.hp == 0:
                 enemigo.alive = False
+                jugador.lista_sonidos[6].play()
                 jugador.score += score_enem_static
                 enemigo.kill()
             if enemigo.rect.colliderect(jugador.rect):
@@ -179,6 +187,7 @@ while running:
                 enemigo.hp -= 1
             if enemigo.hp == 0:
                 enemigo.alive = False
+                jugador.lista_sonidos[6].play()
                 jugador.score += score_enem_anim
                 enemigo.kill()
             if enemigo.rect.colliderect(jugador.rect):
@@ -224,8 +233,11 @@ while running:
                 world = World(screen, current_map)
                 enemy_group = generar_nivel(screen, world, current_map, scale_factor, SCREEN_WIDTH, SCREEN_HEIGHT)
                 jugador = Personaje(screen, "jugador", sprite_x, sprite_y, 5,3, scale_factor, world)
+                cronometro = 59
                 game_over_time = 0
             game_over_time = game_over(screen, game_over_time)
+        else:
+            screen.blit(cronometro_texto, (30,20))
 
         # Final nivel
         if jugador.level_cleared == True:
@@ -234,6 +246,7 @@ while running:
             if jugador.hit_count == 1:
                 jugador.lista_sonidos[0].play()
             if jugador.hit_count > FPS * 2:
+                jugador.score *= cronometro
                 jugador.guardar_puntaje()
                 world.current_map = "menu"
                 cambiar_canciones("menu", lista_canciones)          
@@ -243,7 +256,16 @@ while running:
             jugador.draw_follow()
             jugador.update_action(8)
             jugador.update_animation(40)
-
+        
+        # Cronometro
+        contador += 1
+        if contador > FPS:
+            cronometro -= 1
+            contador = 0
+        if cronometro < 0:
+            jugador.hp = 0
+            cronometro = 59
+        
         # Debug mode
         if get_mode():
             camera_debug = main_font.render(f"camera_x:{int(jugador.camera_x)}", False, (0, 0, 0), "White")

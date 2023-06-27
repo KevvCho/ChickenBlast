@@ -22,7 +22,7 @@ class Proyectil(pygame.sprite.Sprite):
         self.on_screen = False
         self.is_moving = False
         
-    
+    # Recibe la direccion a la que se apuntaba para disparar y actualiza el proyectil
     def update(self, screen_width, last_position, obstacle_list):
         
         if not self.is_moving:
@@ -48,11 +48,11 @@ class Proyectil(pygame.sprite.Sprite):
         self.update_animation()
         self.draw()
 
-    
+    # Bliteo del proyectil
     def draw(self):
         self.screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x-5, self.rect.y, self.image.get_width(), self.image.get_height()))
         
-
+    # Cambio de frames en la animacion
     def update_animation(self):
 
         animation_cooldown = 20
